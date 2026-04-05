@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-dark antialiased;
+    background-image: radial-gradient(#34a85310 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-cricket hover:bg-cricket-dark text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-secondary {
+    @apply bg-white border border-gray-300 hover:bg-gray-50 text-dark-light font-semibold py-2 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cricket focus:border-transparent outline-none transition-all duration-200;
+  }
+
+  .card-base {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200;
+  }
+
+  .label-base {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+}
+
+/* Custom theme variables for v4 if needed, though they are already in tailwind.config.js */
+@theme {
+  --color-cricket-light: #e6f4ea;
+  --color-cricket: #34a853;
+  --color-cricket-dark: #1e7e34;
+  --color-dark-light: #3c4043;
+  --color-dark: #202124;
+  --color-dark-dark: #000000;
+}
