@@ -18,17 +18,17 @@ const Loader = ({ text = "Setting the pitch..." }) => {
 
   return (
     <div className="fixed inset-0 z-60 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center animate-in fade-in duration-300">
-      <div className="w-48 h-48 md:w-64 md:h-64">
+      <div className="w-32 h-32 md:w-40 md:h-40">
         <DotLottieReact
           animationData={loader} 
           loop
           autoplay
         />
       </div>
-      <p className="mt-4 text-cricket font-bold text-lg animate-pulse tracking-wide italic">
+      <p className="mt-2 text-cricket font-bold text-sm animate-pulse tracking-wide italic">
         {text}
       </p>
-      
+  ...
       {/* Fallback if Lottie fails (hidden if Lottie works) */}
       <noscript>
         <div className="w-12 h-12 border-4 border-cricket border-t-transparent rounded-full animate-spin"></div>

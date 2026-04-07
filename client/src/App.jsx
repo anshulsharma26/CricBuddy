@@ -29,17 +29,17 @@ const Navbar = () => {
   return (
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between h-12">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center gap-2">
-              <span className="text-2xl" role="img" aria-label="cricket">🏏</span>
-              <span className="text-xl font-bold bg-gradient-to-r from-cricket to-cricket-dark bg-clip-text text-transparent">
+            <Link to="/" className="flex items-center gap-1.5">
+              <span className="text-xl" role="img" aria-label="cricket">🏏</span>
+              <span className="text-lg font-bold bg-gradient-to-r from-cricket to-cricket-dark bg-clip-text text-transparent">
                 CricBuddy
               </span>
             </Link>
           </div>
           
-          <div className="hidden sm:flex items-center space-x-8">
+          <div className="hidden sm:flex items-center space-x-6">
             {user ? (
               <>
                 <Link 
@@ -52,7 +52,7 @@ const Navbar = () => {
                   to="/create-match" 
                   className={`text-sm font-medium transition-colors ${isActive('/create-match') ? 'text-cricket' : 'text-gray-500 hover:text-gray-700'}`}
                 >
-                  Organize Match
+                  Organize
                 </Link>
                 <Link 
                   to="/profile" 
@@ -62,7 +62,7 @@ const Navbar = () => {
                 </Link>
                 <button 
                   onClick={logout} 
-                  className="btn-secondary text-sm !py-1.5 !px-4"
+                  className="btn-secondary"
                 >
                   Logout
                 </button>
@@ -70,7 +70,7 @@ const Navbar = () => {
             ) : (
               <>
                 <Link to="/login" className="text-sm font-medium text-gray-500 hover:text-gray-700">Login</Link>
-                <Link to="/signup" className="btn-primary text-sm !py-1.5 !px-6">Sign Up</Link>
+                <Link to="/signup" className="btn-primary">Sign Up</Link>
               </>
             )}
           </div>
@@ -81,7 +81,7 @@ const Navbar = () => {
                  {user.name.split(' ')[0]}
                </Link>
              )}
-             <button onClick={user ? logout : undefined} className="text-gray-500">
+             <button onClick={user ? logout : undefined} className="text-gray-500 text-sm">
                 {user ? 'Logout' : <Link to="/login">Login</Link>}
              </button>
           </div>
@@ -121,7 +121,7 @@ function App() {
         <div className="min-h-screen bg-gray-50">
           {isOffline && <OfflinePage onRetry={handleRetry} />}
           <Navbar />
-          <main className="py-8">
+          <main className="py-4">
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />

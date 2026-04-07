@@ -59,34 +59,34 @@ const CreateMatch = () => {
   const hasLocation = user && user.location && user.location.coordinates[0] !== 0;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <div className="mb-6">
-        <Link to="/" className="text-sm font-semibold text-cricket hover:underline flex items-center gap-2">
+    <div className="max-w-xl mx-auto px-4 py-4">
+      <div className="mb-4">
+        <Link to="/" className="text-xs font-semibold text-cricket hover:underline flex items-center gap-1">
           ← Back to Dashboard
         </Link>
       </div>
 
-      <div className="card-base animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div className="text-center mb-8">
-          <div className="text-4xl mb-2">🏟️</div>
-          <h2 className="text-2xl font-bold text-dark">Organize a Match</h2>
-          <p className="text-gray-500 text-sm">Create teams and schedule your game</p>
+      <div className="card-base animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="text-center mb-6">
+          <div className="text-2xl mb-1">🏟️</div>
+          <h2 className="text-lg font-bold text-dark">Organize a Match</h2>
+          <p className="text-gray-500 text-xs">Schedule your game and invite players</p>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-lg text-sm mb-6 flex items-center gap-2">
+          <div className="bg-red-50 border border-red-100 text-red-600 px-3 py-2 rounded text-xs mb-4 flex items-center gap-2">
             <span>⚠️</span> {error}
           </div>
         )}
 
         {!hasLocation ? (
-          <div className="bg-amber-50 border border-amber-100 p-6 rounded-xl text-center space-y-4">
-            <p className="text-amber-800 text-sm font-medium">We need your current location to organize a match in your area.</p>
-            <Link to="/profile" className="btn-primary bg-amber-600 border-none inline-block">Update Profile Now</Link>
+          <div className="bg-amber-50 border border-amber-100 p-4 rounded-lg text-center space-y-3">
+            <p className="text-amber-800 text-xs font-medium">We need your current location to organize a match.</p>
+            <Link to="/profile" className="btn-primary inline-block">Update Profile Now</Link>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-3">
               <div>
                 <label className="label-base">Match Title</label>
                 <input 
@@ -99,9 +99,9 @@ const CreateMatch = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="label-base">Team A Name</label>
+                  <label className="label-base">Team A</label>
                   <input 
                     name="teamA" 
                     className="input-field"
@@ -111,7 +111,7 @@ const CreateMatch = () => {
                   />
                 </div>
                 <div>
-                  <label className="label-base">Team B Name</label>
+                  <label className="label-base">Team B</label>
                   <input 
                     name="teamB" 
                     className="input-field"
@@ -122,7 +122,7 @@ const CreateMatch = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="label-base">Date</label>
                   <input 
@@ -135,7 +135,7 @@ const CreateMatch = () => {
                   />
                 </div>
                 <div>
-                  <label className="label-base">Team Size (Per Team)</label>
+                  <label className="label-base">Team Size</label>
                   <select 
                     name="teamSize" 
                     className="input-field"
@@ -153,41 +153,41 @@ const CreateMatch = () => {
               <div>
                 <label className="label-base">Start Time</label>
                 <div className="grid grid-cols-3 gap-2">
-                  <select name="hour" className="input-field" value={formData.hour} onChange={handleChange}>
+                  <select name="hour" className="input-field text-center" value={formData.hour} onChange={handleChange}>
                     {Array.from({length: 12}, (_, i) => i + 1).map(h => (
                       <option key={h} value={h < 10 ? `0${h}` : h}>{h}</option>
                     ))}
                   </select>
-                  <select name="minute" className="input-field" value={formData.minute} onChange={handleChange}>
+                  <select name="minute" className="input-field text-center" value={formData.minute} onChange={handleChange}>
                     {['00', '15', '30', '45'].map(m => (
                       <option key={m} value={m}>{m}</option>
                     ))}
                   </select>
-                  <select name="ampm" className="input-field" value={formData.ampm} onChange={handleChange}>
+                  <select name="ampm" className="input-field text-center" value={formData.ampm} onChange={handleChange}>
                     <option value="AM">AM</option>
                     <option value="PM">PM</option>
                   </select>
                 </div>
               </div>
 
-              <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-start gap-3">
-                 <span className="text-lg">📍</span>
-                 <div className="text-xs text-gray-500">
-                   <p className="font-bold text-gray-700">Location Preview</p>
-                   <p>Your match will be pinned at your current coordinates.</p>
+              <div className="bg-gray-50 p-2 rounded border border-gray-100 flex items-start gap-2">
+                 <span className="text-base">📍</span>
+                 <div className="text-[10px] text-gray-500">
+                   <p className="font-bold text-gray-700">Location</p>
+                   <p>Pinned at your current coordinates.</p>
                  </div>
               </div>
             </div>
 
-            <div className="pt-6 border-t border-gray-100 flex flex-col md:flex-row gap-3">
+            <div className="pt-4 border-t border-gray-50 flex gap-2">
               <button 
                 type="submit" 
-                className="btn-primary flex-1 py-3" 
+                className="btn-primary flex-1" 
                 disabled={loading}
               >
-                {loading ? 'Creating Match...' : 'Publish Match'}
+                {loading ? 'Creating...' : 'Publish Match'}
               </button>
-              <Link to="/" className="btn-secondary text-center py-3 md:px-8">
+              <Link to="/" className="btn-secondary">
                 Cancel
               </Link>
             </div>

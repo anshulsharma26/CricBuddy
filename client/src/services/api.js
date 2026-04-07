@@ -27,6 +27,11 @@ export const profileService = {
   getMe: () => api.get('/profile/me'),
   updateMe: (userData) => api.put('/profile/me', userData),
   getNearby: (params) => api.get('/profile/nearby', { params }),
+  uploadProfilePic: (formData) => api.post('/profile/upload-profile-pic', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }),
 };
 
 export const matchService = {

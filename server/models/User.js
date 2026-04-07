@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema({
     enum: ['beginner', 'intermediate', 'advanced'],
     default: 'beginner'
   },
+  profilePic: {
+    type: String,
+    default: ''
+  },
   location: {
     type: {
       type: String,

@@ -34,21 +34,21 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-160px)] px-4 py-8">
-      <div className="card-base max-w-lg w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div className="text-center mb-8">
-          <div className="text-4xl mb-2">🤝</div>
-          <h2 className="text-2xl font-bold text-dark">Join the Squad</h2>
-          <p className="text-gray-500 text-sm">Create your player profile and start connecting</p>
+    <div className="flex items-center justify-center min-h-[calc(100vh-100px)] px-4 py-4">
+      <div className="card-base max-w-sm w-full animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="text-center mb-6">
+          <div className="text-2xl mb-1">🤝</div>
+          <h2 className="text-lg font-bold text-dark">Join the Squad</h2>
+          <p className="text-gray-500 text-xs">Create your player profile</p>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-lg text-sm mb-6 flex items-center gap-2">
+          <div className="bg-red-50 border border-red-100 text-red-600 px-3 py-2 rounded text-xs mb-4 flex items-center gap-2">
             <span>⚠️</span> {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <label className="label-base">Full Name</label>
             <input 
@@ -62,7 +62,7 @@ const Signup = () => {
             />
           </div>
           <div>
-            <label className="label-base">Email Address</label>
+            <label className="label-base">Email</label>
             <input 
               type="email" 
               name="email" 
@@ -79,7 +79,7 @@ const Signup = () => {
               type="password" 
               name="password" 
               className="input-field"
-              placeholder="Minimum 6 characters"
+              placeholder="Min 6 characters"
               value={formData.password} 
               onChange={handleChange} 
               required 
@@ -87,9 +87,9 @@ const Signup = () => {
             />
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label-base">Primary Role</label>
+              <label className="label-base">Role</label>
               <select 
                 name="role" 
                 className="input-field"
@@ -102,7 +102,7 @@ const Signup = () => {
               </select>
             </div>
             <div>
-              <label className="label-base">Skill Level</label>
+              <label className="label-base">Skill</label>
               <select 
                 name="skillLevel" 
                 className="input-field"
@@ -118,23 +118,23 @@ const Signup = () => {
 
           <button 
             type="submit" 
-            className="btn-primary w-full py-3 mt-4" 
+            className="btn-primary w-full mt-2" 
             disabled={loading}
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                Creating Profile...
+                <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                Creating...
               </span>
             ) : 'Sign Up Now'}
           </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-          <p className="text-gray-500 text-sm">
+        <div className="mt-6 pt-4 border-t border-gray-100 text-center">
+          <p className="text-gray-500 text-xs">
             Already have an account?{' '}
             <Link to="/login" className="text-cricket font-semibold hover:underline">
-              Log in here
+              Log in
             </Link>
           </p>
         </div>

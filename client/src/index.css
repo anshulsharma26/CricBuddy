@@ -10,23 +10,23 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-cricket hover:bg-cricket-dark text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-cricket hover:bg-cricket-dark text-white font-semibold py-1.5 px-3 rounded-md text-sm transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed;
   }
   
   .btn-secondary {
-    @apply bg-white border border-gray-300 hover:bg-gray-50 text-dark-light font-semibold py-2 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
+    @apply bg-white border border-gray-300 hover:bg-gray-50 text-dark-light font-semibold py-1.5 px-3 rounded-md text-sm transition-all duration-200 shadow-sm hover:shadow-md;
   }
 
   .input-field {
-    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cricket focus:border-transparent outline-none transition-all duration-200;
+    @apply w-full px-3 py-1.5 border border-gray-200 rounded-md text-sm focus:ring-2 focus:ring-cricket/20 focus:border-cricket outline-none transition-all duration-200;
   }
 
   .card-base {
-    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200;
+    @apply bg-white rounded-lg shadow-sm border border-gray-100 p-3 hover:shadow-md transition-shadow duration-200;
   }
 
   .label-base {
-    @apply block text-sm font-medium text-gray-700 mb-1;
+    @apply block text-sm font-medium text-gray-700 mb-0.5;
   }
 }
 

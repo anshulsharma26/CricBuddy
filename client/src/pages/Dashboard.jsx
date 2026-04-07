@@ -3,6 +3,7 @@ import { profileService, matchService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import Loader from '../components/Loader';
+import ImageModal from '../components/ImageModal';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -10,6 +11,13 @@ const Dashboard = () => {
   const [nearbyMatches, setNearbyMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState({ type: '', message: '' });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalImage, setModalImage] = useState('');
+
+  const openImageModal = (imageSrc) => {
+    setModalImage(imageSrc);
+    setIsModalOpen(true);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,20 +55,20 @@ const Dashboard = () => {
   const hasLocation = user && user.location && user.location.coordinates[0] !== 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pb-12">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 border-b border-gray-200">
+    <div className="max-w-6xl mx-auto px-4 space-y-6 pb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-2 border-b border-gray-100">
         <div>
-          <h1 className="text-3xl font-bold text-dark">Welcome back, {user.name}!</h1>
-          <p className="text-gray-500 mt-1">Ready for a game today?</p>
+          <h1 className="text-xl font-bold text-dark tracking-tight">Welcome, {user.name}!</h1>
+          <p className="text-xs text-gray-500">Ready for a game today?</p>
         </div>
-        <div className="flex items-center gap-3">
-           <Link to="/create-match" className="btn-primary text-sm">Organize Match</Link>
-           <Link to="/profile" className="btn-secondary text-sm">Update Location</Link>
+        <div className="flex items-center gap-2">
+           <Link to="/create-match" className="btn-primary">Organize Match</Link>
+           <Link to="/profile" className="btn-secondary">Update Location</Link>
         </div>
       </div>
 
       {status.message && (
-        <div className={`p-4 rounded-xl flex items-center gap-3 border shadow-sm animate-in fade-in slide-in-from-top-2 duration-300 ${
+        <div className={`p-2 rounded-lg flex items-center gap-2 border shadow-sm text-sm animate-in fade-in slide-in-from-top-1 duration-300 ${
           status.type === 'success' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-red-50 text-red-700 border-red-100'
         }`}>
           <span>{status.type === 'success' ? '✅' : '⚠️'}</span>
@@ -69,87 +77,83 @@ const Dashboard = () => {
       )}
       
       {!hasLocation && (
-        <div className="bg-amber-50 border border-amber-100 p-6 rounded-2xl flex flex-col md:flex-row items-center gap-4 text-center md:text-left animate-pulse">
-          <div className="text-4xl">📍</div>
+        <div className="bg-amber-50 border border-amber-100 p-4 rounded-lg flex items-center gap-4 animate-pulse">
+          <div className="text-2xl">📍</div>
           <div className="flex-1">
-            <h3 className="font-bold text-amber-900">Location Access Required</h3>
-            <p className="text-amber-700 text-sm">Please set your location in your profile to discover matches near you.</p>
+            <h3 className="text-sm font-bold text-amber-900">Location Access Required</h3>
+            <p className="text-amber-700 text-xs">Set location in profile to discover matches.</p>
           </div>
-          <Link to="/profile" className="btn-primary bg-amber-600 hover:bg-amber-700 border-none whitespace-nowrap">
-            Set Location Now
+          <Link to="/profile" className="btn-primary bg-amber-600 hover:bg-amber-700 border-none text-xs">
+            Set Location
           </Link>
         </div>
       )}
 
       {hasLocation && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold flex items-center gap-2">
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
                 <span role="img" aria-label="match">🏟️</span> Nearby Matches
               </h2>
             </div>
 
             {nearbyMatches.length === 0 ? (
-              <div className="card-base text-center py-12 bg-gray-50 border-dashed border-2 border-gray-200">
-                <div className="text-4xl mb-3">🏏</div>
-                <h3 className="font-bold text-gray-700">No matches found</h3>
-                <p className="text-gray-500 text-sm mb-4">Be the first to organize a match in your area!</p>
-                <Link to="/create-match" className="btn-primary text-sm">Start a Match</Link>
+              <div className="card-base text-center py-8 bg-gray-50 border-dashed border-2 border-gray-200">
+                <div className="text-2xl mb-2">🏏</div>
+                <h3 className="text-sm font-bold text-gray-700">No matches found</h3>
+                <p className="text-xs text-gray-500 mb-3">Be the first to organize a match!</p>
+                <Link to="/create-match" className="btn-primary">Start a Match</Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {nearbyMatches.map(match => (
-                  <div key={match._id} className="card-base group overflow-hidden border-t-4 border-t-cricket">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">
-                        {new Date(match.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                      </div>
-                      <div className="text-xs font-bold text-cricket bg-cricket-light px-2 py-1 rounded italic">
-                         {match.time}
-                      </div>
-                    </div>
-
-                    <div className="text-center mb-6">
-                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">{match.title}</h3>
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex-1">
-                           <p className="text-lg font-black text-dark leading-tight">{match.teamA.name}</p>
-                           <p className="text-xs text-gray-500 font-bold">{match.teamA.players.length} / {match.teamSize}</p>
+                  <div key={match._id} className="card-base group flex flex-col justify-between border-l-4 border-l-cricket">
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
+                          {new Date(match.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} • {match.time}
                         </div>
-                        <div className="text-xl font-black text-gray-300 italic">VS</div>
-                        <div className="flex-1">
-                           <p className="text-lg font-black text-dark leading-tight">{match.teamB.name}</p>
-                           <p className="text-xs text-gray-500 font-bold">{match.teamB.players.length} / {match.teamSize}</p>
+                        <div className="text-[10px] font-bold text-cricket bg-cricket-light px-1.5 py-0.5 rounded">
+                           {match.teamSize}v{match.teamSize}
                         </div>
                       </div>
+
+                      <h3 className="text-sm font-bold text-dark mb-3 truncate">{match.title}</h3>
+                      
+                      <div className="flex items-center justify-between bg-gray-50 rounded-md p-2 gap-2">
+                        <div className="flex-1 text-center">
+                           <p className="text-xs font-bold text-dark truncate">{match.teamA.name}</p>
+                           <p className="text-[10px] text-gray-500">{match.teamA.players.length} joined</p>
+                        </div>
+                        <div className="text-[10px] font-black text-gray-300 italic">VS</div>
+                        <div className="flex-1 text-center">
+                           <p className="text-xs font-bold text-dark truncate">{match.teamB.name}</p>
+                           <p className="text-[10px] text-gray-500">{match.teamB.players.length} joined</p>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
-                       <div className="text-xs text-gray-400">
-                         By <span className="font-bold text-gray-600">{match.creator?.name}</span>
+                    <div className="mt-3 pt-3 border-t border-gray-50 flex items-center justify-between">
+                       <div className="text-[10px] text-gray-400">
+                         By <span className="font-semibold text-gray-600">{match.creator?.name}</span>
                        </div>
-                       <div className="text-xs font-bold text-gray-500">
-                         {match.teamSize * 2} Players Total
-                       </div>
-                    </div>
-
-                    <div className="mt-6">
-                      {!(match.teamA.players.includes(user._id) || match.teamB.players.includes(user._id)) ? (
+                       
+                       {!(match.teamA.players.includes(user._id) || match.teamB.players.includes(user._id)) ? (
                         <button 
-                          className={`w-full py-2.5 rounded-xl font-bold transition-all shadow-sm flex items-center justify-center gap-2 ${
+                          className={`px-3 py-1 rounded text-xs font-bold transition-all ${
                             (match.teamA.players.length + match.teamB.players.length) >= (match.teamSize * 2)
                               ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                              : 'bg-cricket text-white hover:bg-cricket-dark hover:-translate-y-0.5'
+                              : 'bg-cricket text-white hover:bg-cricket-dark'
                           }`}
                           onClick={() => handleJoinMatch(match._id)}
                           disabled={(match.teamA.players.length + match.teamB.players.length) >= (match.teamSize * 2)}
                         >
-                          {(match.teamA.players.length + match.teamB.players.length) >= (match.teamSize * 2) ? 'Match Full' : 'Join Game'}
+                          {(match.teamA.players.length + match.teamB.players.length) >= (match.teamSize * 2) ? 'Full' : 'Join'}
                         </button>
                       ) : (
-                        <div className="w-full py-2.5 bg-green-50 text-green-700 font-bold text-center rounded-xl flex items-center justify-center gap-2 border border-green-100">
-                           <span>🏏</span> You're in!
+                        <div className="text-[10px] font-bold text-green-600 flex items-center gap-1">
+                           <span>✓</span> Joined
                         </div>
                       )}
                     </div>
@@ -159,22 +163,29 @@ const Dashboard = () => {
             )}
           </div>
 
-          <div className="space-y-6">
-            <h2 className="text-xl font-bold flex items-center gap-2">
+          <div className="space-y-4">
+            <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
               <span role="img" aria-label="players">👟</span> Nearby Players
             </h2>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-2">
               {nearbyPlayers.length === 0 ? (
-                <p className="text-gray-500 text-sm">No other players nearby.</p>
+                <p className="text-gray-500 text-xs">No players nearby.</p>
               ) : (
                 nearbyPlayers.map(player => (
-                  <div key={player._id} className="card-base p-4 flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-cricket-light text-cricket flex items-center justify-center text-sm font-bold uppercase">
-                      {player.name.charAt(0)}
+                  <div key={player._id} className="card-base p-2 flex items-center gap-3">
+                    <div 
+                      className={`w-8 h-8 rounded-full bg-cricket-light text-cricket flex items-center justify-center text-xs font-bold uppercase shrink-0 overflow-hidden ${player.profilePic ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+                      onClick={() => player.profilePic && openImageModal(player.profilePic)}
+                    >
+                      {player.profilePic ? (
+                        <img src={player.profilePic} alt={player.name} className="w-full h-full object-cover" />
+                      ) : (
+                        player.name.charAt(0)
+                      )}
                     </div>
-                    <div>
-                      <h4 className="font-bold text-dark text-sm">{player.name}</h4>
-                      <p className="text-xs text-gray-400 font-medium">{player.role} • {player.skillLevel}</p>
+                    <div className="min-w-0">
+                      <h4 className="font-bold text-dark text-xs truncate">{player.name}</h4>
+                      <p className="text-[10px] text-gray-400 truncate">{player.role} • {player.skillLevel}</p>
                     </div>
                   </div>
                 ))
@@ -183,6 +194,12 @@ const Dashboard = () => {
           </div>
         </div>
       )}
+
+      <ImageModal 
+        isOpen={isModalOpen} 
+        imageSrc={modalImage} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 };
