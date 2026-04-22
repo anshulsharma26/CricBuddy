@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { chatService } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import './Chatbot.css';
 
 const Chatbot = () => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     { role: 'model', parts: [{ text: "Hi! I'm CricBuddy AI. Ask me anything about cricket!" }] }
@@ -19,8 +21,18 @@ const Chatbot = () => {
     scrollToBottom();
   }, [messages, isLoading]);
 
+  // If user is not logged in, don't show the chatbot
+  if (!user) return null;
+
+  const cleanText = (text) => {
+    return text
+      .replace(/#{1,6}\s?/g, '') // Remove markdown headers (e.g., #, ##)
+      .replace(/\*\*/g, '')      // Remove bold markers (**)
+      .replace(/\*/g, '• ')      // Replace bullet markers (*) with a bullet point
+      .trim();
+  };
+
   const handleSubmit = async (e) => {
-    debugger;
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
@@ -37,9 +49,11 @@ const Chatbot = () => {
       const historyToSend = messages.filter((msg, index) => index !== 0 || msg.role === 'user');
       const response = await chatService.sendMessage(userMessage, historyToSend);
       
+      const responseText = response.data?.data?.text || response.data?.text || "";
+      
       setMessages(prev => [...prev, { 
         role: 'model', 
-        parts: [{ text: response.data.data.text }] 
+        parts: [{ text: cleanText(responseText) }] 
       }]);
     } catch (error) {
       console.error('Chat error:', error);
