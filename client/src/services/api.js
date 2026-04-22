@@ -20,6 +20,8 @@ api.interceptors.request.use(
 
 export const authService = {
   signup: (userData) => api.post('/auth/signup', userData),
+  verifyOtp: (data) => api.post('/auth/verify-otp', data),
+  resendOtp: (email) => api.post('/auth/resend-otp', { email }),
   login: (credentials) => api.post('/auth/login', credentials),
 };
 
@@ -39,6 +41,10 @@ export const matchService = {
   getAll: () => api.get('/matches'),
   getNearby: (params) => api.get('/matches/nearby', { params }),
   join: (id) => api.post(`/matches/${id}/join`),
+};
+
+export const chatService = {
+  sendMessage: (message, history) => api.post('/chat', { message, history }),
 };
 
 export default api;

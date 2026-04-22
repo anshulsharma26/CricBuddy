@@ -34,10 +34,20 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (userData) => {
     const response = await authService.signup(userData);
+    return response.data; // Just return message about OTP
+  };
+
+  const verifyOtp = async (data) => {
+    const response = await authService.verifyOtp(data);
     const { token, user } = response.data;
     localStorage.setItem('token', token);
     setUser(user);
     return user;
+  };
+
+  const resendOtp = async (email) => {
+    const response = await authService.resendOtp(email);
+    return response.data;
   };
 
   const logout = () => {
@@ -52,7 +62,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateProfile }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, verifyOtp, resendOtp, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

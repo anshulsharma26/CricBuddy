@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } f
 import { AuthProvider, useAuth } from './context/AuthContext';
 import OfflinePage from './components/OfflinePage';
 import Loader from './components/Loader';
+import Chatbot from './components/Chatbot';
 
 // Pages
 import Dashboard from './pages/Dashboard';
@@ -142,6 +143,7 @@ function App() {
               } />
             </Routes>
           </main>
+          <Chatbot />
         </div>
       </Router>
     </AuthProvider>
