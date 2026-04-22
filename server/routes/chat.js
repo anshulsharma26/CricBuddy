@@ -2,7 +2,13 @@ const express = require('express');
 const router = express.Router();
 const { GoogleGenAI } =  require("@google/genai");
 
-const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
+const apiKey = process.env.GOOGLE_API_KEY;
+
+if (!apiKey) {
+  throw new Error("GOOGLE_API_KEY is not defined. Check your Vercel Environment Variables.");
+}
+
+const ai = new GoogleGenAI(apiKey);
 
 router.post('/', async (req, res) => {
   try {
