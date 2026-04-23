@@ -19,8 +19,8 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    if (!process.env.GEMINI_API_KEY) {
-      return res.status(500).json({ error: 'Gemini API key is missing.' });
+    if (!process.env.GOOGLE_API_KEY) {
+      return res.status(500).json({ error: 'Google API key is missing.' });
     }
 
     const response = await ai.models.generateContent({
