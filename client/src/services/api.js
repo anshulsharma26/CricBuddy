@@ -39,8 +39,11 @@ export const profileService = {
 export const matchService = {
   create: (matchData) => api.post('/matches', matchData),
   getAll: () => api.get('/matches'),
+  getById: (id) => api.get(`/matches/${id}`),
   getNearby: (params) => api.get('/matches/nearby', { params }),
-  join: (id) => api.post(`/matches/${id}/join`),
+  join: (id, team) => api.post(`/matches/${id}/join`, { team }),
+  submitScorecard: (id, scorecardData) => api.post(`/matches/${id}/scorecard`, scorecardData),
+  getScorecard: (id) => api.get(`/matches/${id}/scorecard`),
 };
 
 export const chatService = {

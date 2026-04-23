@@ -2,6 +2,7 @@ const express = require('express');
 const auth = require('../middleware/auth');
 const Match = require('../models/Match');
 const User = require('../models/User');
+const Scorecard = require('../models/Scorecard');
 const router = express.Router();
 
 // Create a match
@@ -68,6 +69,24 @@ router.get('/nearby', auth, async (req, res) => {
 
     res.send(matches);
   } catch (e) {
+    console.error('Nearby matches error:', e);
+    res.status(500).send(e);
+  }
+});
+
+// Get single match detail
+router.get('/:id', auth, async (req, res) => {
+  try {
+    const match = await Match.findById(req.params.id)
+      .populate('creator', 'name')
+      .populate('teamA.players', 'name role profilePic skillLevel')
+      .populate('teamB.players', 'name role profilePic skillLevel');
+    
+    if (!match) {
+      return res.status(404).send({ error: 'Match not found' });
+    }
+    res.send(match);
+  } catch (e) {
     res.status(500).send(e);
   }
 });
@@ -75,10 +94,15 @@ router.get('/nearby', auth, async (req, res) => {
 // Join a match
 router.post('/:id/join', auth, async (req, res) => {
   try {
+    const { team } = req.body;
     const match = await Match.findById(req.params.id);
 
     if (!match) {
       return res.status(404).send({ error: 'Match not found' });
+    }
+
+    if (!['teamA', 'teamB'].includes(team)) {
+      return res.status(400).send({ error: 'Invalid team selection' });
     }
 
     // Check if user is already in any team
@@ -89,13 +113,11 @@ router.post('/:id/join', auth, async (req, res) => {
       return res.status(400).send({ error: 'Already joined this match' });
     }
 
-    // Assign to Team A if not full, otherwise Team B
-    if (match.teamA.players.length < match.teamSize) {
-      match.teamA.players.push(req.user._id);
-    } else if (match.teamB.players.length < match.teamSize) {
-      match.teamB.players.push(req.user._id);
+    // Assign to the selected team if not full
+    if (match[team].players.length < match.teamSize) {
+      match[team].players.push(req.user._id);
     } else {
-      return res.status(400).send({ error: 'Match is already full' });
+      return res.status(400).send({ error: `${match[team].name} is already full` });
     }
 
     // Update helper array for easier flat checks if needed
@@ -110,6 +132,88 @@ router.post('/:id/join', auth, async (req, res) => {
   } catch (e) {
     console.error('Join match error:', e);
     res.status(400).send({ error: e.message });
+  }
+});
+
+// Submit a scorecard
+router.post('/:id/scorecard', auth, async (req, res) => {
+  try {
+    const match = await Match.findById(req.params.id);
+
+    if (!match) {
+      return res.status(404).send({ error: 'Match not found' });
+    }
+
+    // Only creator can submit scorecard
+    if (match.creator.toString() !== req.user._id.toString()) {
+      return res.status(403).send({ error: 'Only the match creator can submit a scorecard' });
+    }
+
+    if (match.status === 'completed') {
+      return res.status(400).send({ error: 'Scorecard already submitted for this match' });
+    }
+
+    const { innings, result } = req.body;
+
+    const scorecard = new Scorecard({
+      match: match._id,
+      innings
+    });
+
+    await scorecard.save();
+
+    // Update match status and result
+    match.status = 'completed';
+    match.result = result;
+    await match.save();
+
+    // Robust Career Stats Update
+    const allPlayersInScorecard = new Set();
+    innings.forEach(inn => {
+      inn.batting.forEach(b => { if(b.player) allPlayersInScorecard.add(b.player.toString()) });
+      inn.bowling.forEach(bw => { if(bw.player) allPlayersInScorecard.add(bw.player.toString()) });
+    });
+
+    for (const playerId of allPlayersInScorecard) {
+      let playerRuns = 0;
+      let playerWickets = 0;
+
+      innings.forEach(inn => {
+        const b = inn.batting.find(x => x.player && x.player.toString() === playerId);
+        if (b) playerRuns += b.runs;
+        const bw = inn.bowling.find(x => x.player && x.player.toString() === playerId);
+        if (bw) playerWickets += bw.wickets;
+      });
+
+      await User.findByIdAndUpdate(playerId, {
+        $inc: {
+          'careerStats.matchesPlayed': 1,
+          'careerStats.totalRuns': playerRuns,
+          'careerStats.totalWickets': playerWickets
+        }
+      });
+    }
+
+    res.status(201).send(scorecard);
+  } catch (e) {
+    console.error('Scorecard submission error:', e);
+    res.status(400).send({ error: e.message });
+  }
+});
+
+// Get scorecard for a match
+router.get('/:id/scorecard', auth, async (req, res) => {
+  try {
+    const scorecard = await Scorecard.findOne({ match: req.params.id })
+      .populate('innings.batting.player', 'name')
+      .populate('innings.bowling.player', 'name');
+    
+    if (!scorecard) {
+      return res.status(404).send({ error: 'Scorecard not found' });
+    }
+    res.send(scorecard);
+  } catch (e) {
+    res.status(500).send(e);
   }
 });
 

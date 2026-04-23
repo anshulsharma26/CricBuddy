@@ -48,7 +48,16 @@ const matchSchema = new mongoose.Schema({
   playersJoined: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  }]
+  }],
+  status: {
+    type: String,
+    enum: ['scheduled', 'completed'],
+    default: 'scheduled'
+  },
+  result: {
+    type: String,
+    default: ''
+  }
 }, {
   timestamps: true
 });

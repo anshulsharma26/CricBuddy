@@ -62,8 +62,10 @@ router.post('/upload-profile-pic', auth, upload.single('image'), async (req, res
 
     const result = await cloudinary.uploader.upload(fileBase64, {
       folder: 'cricbuddy_profiles',
-      width: 300,
-      crop: 'scale'
+      width: 500,
+      height: 500,
+      crop: 'fill',
+      gravity: 'face'
     });
 
     req.user.profilePic = result.secure_url;

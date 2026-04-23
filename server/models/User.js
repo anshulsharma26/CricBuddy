@@ -49,7 +49,12 @@ const userSchema = new mongoose.Schema({
   matchesJoined: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Match'
-  }]
+  }],
+  careerStats: {
+    matchesPlayed: { type: Number, default: 0 },
+    totalRuns: { type: Number, default: 0 },
+    totalWickets: { type: Number, default: 0 }
+  }
 }, {
   timestamps: true
 });

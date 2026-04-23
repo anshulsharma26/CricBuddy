@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import Loader from '../components/Loader';
 import ImageModal from '../components/ImageModal';
+import MatchDetailModal from '../components/MatchDetailModal';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -13,10 +14,22 @@ const Dashboard = () => {
   const [status, setStatus] = useState({ type: '', message: '' });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImage, setModalImage] = useState('');
+  
+  // Match Detail Modal State
+  const [isMatchModalOpen, setIsMatchModalOpen] = useState(false);
+  const [selectedMatchId, setSelectedMatchId] = useState(null);
+  
+  // Team Selection State
+  const [joiningMatch, setJoiningMatch] = useState(null);
 
   const openImageModal = (imageSrc) => {
     setModalImage(imageSrc);
     setIsModalOpen(true);
+  };
+
+  const openMatchModal = (matchId) => {
+    setSelectedMatchId(matchId);
+    setIsMatchModalOpen(true);
   };
 
   useEffect(() => {
@@ -38,10 +51,12 @@ const Dashboard = () => {
     fetchData();
   }, [user]);
 
-  const handleJoinMatch = async (matchId) => {
+  const handleJoinMatch = async (matchId, team) => {
     try {
-      await matchService.join(matchId);
-      setStatus({ type: 'success', message: 'Successfully joined the match!' });
+      const teamName = team === 'teamA' ? joiningMatch.teamA.name : joiningMatch.teamB.name;
+      await matchService.join(matchId, team);
+      setStatus({ type: 'success', message: `Successfully joined ${teamName}!` });
+      setJoiningMatch(null);
       const [lon, lat] = user.location.coordinates;
       const matchesRes = await matchService.getNearby({ longitude: lon, latitude: lat });
       setNearbyMatches(matchesRes.data);
@@ -56,6 +71,44 @@ const Dashboard = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 space-y-6 pb-8 transition-colors duration-300">
+      {/* Team Selection Modal */}
+      {joiningMatch && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-dark-light rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
+              <h3 className="font-bold text-dark dark:text-white">Choose Your Team</h3>
+              <button onClick={() => setJoiningMatch(null)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="p-5 grid grid-cols-1 gap-3">
+              <button 
+                onClick={() => handleJoinMatch(joiningMatch._id, 'teamA')}
+                disabled={joiningMatch.teamA.players.length >= joiningMatch.teamSize}
+                className="flex items-center justify-between p-4 rounded-lg border-2 border-gray-100 dark:border-gray-800 hover:border-cricket hover:bg-cricket-light/10 dark:hover:bg-cricket/5 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="text-left">
+                  <p className="font-bold text-dark dark:text-white group-hover:text-cricket transition-colors">{joiningMatch.teamA.name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{joiningMatch.teamA.players.length} / {joiningMatch.teamSize} Players</p>
+                </div>
+                <div className="text-cricket font-bold text-sm">Join Team A</div>
+              </button>
+              <button 
+                onClick={() => handleJoinMatch(joiningMatch._id, 'teamB')}
+                disabled={joiningMatch.teamB.players.length >= joiningMatch.teamSize}
+                className="flex items-center justify-between p-4 rounded-lg border-2 border-gray-100 dark:border-gray-800 hover:border-cricket hover:bg-cricket-light/10 dark:hover:bg-cricket/5 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="text-left">
+                  <p className="font-bold text-dark dark:text-white group-hover:text-cricket transition-colors">{joiningMatch.teamB.name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{joiningMatch.teamB.players.length} / {joiningMatch.teamSize} Players</p>
+                </div>
+                <div className="text-cricket font-bold text-sm">Join Team B</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-2 border-b border-gray-100 dark:border-gray-800">
         <div>
           <h1 className="text-xl font-bold text-dark dark:text-white tracking-tight">Welcome, {user.name}!</h1>
@@ -110,7 +163,11 @@ const Dashboard = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {nearbyMatches.map(match => (
-                  <div key={match._id} className="card-base group flex flex-col justify-between border-l-4 border-l-cricket">
+                  <div 
+                    key={match._id} 
+                    className="card-base group flex flex-col justify-between border-l-4 border-l-cricket cursor-pointer hover:border-l-cricket-dark transition-all"
+                    onClick={() => openMatchModal(match._id)}
+                  >
                     <div>
                       <div className="flex justify-between items-center mb-2">
                         <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-tight">
@@ -136,7 +193,7 @@ const Dashboard = () => {
                       </div>
                     </div>
 
-                    <div className="mt-3 pt-3 border-t border-gray-50 dark:border-gray-800 flex items-center justify-between">
+                    <div className="mt-3 pt-3 border-t border-gray-50 dark:border-gray-800 flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
                        <div className="text-[10px] text-gray-400 dark:text-gray-500">
                          By <span className="font-semibold text-gray-600 dark:text-gray-300">{match.creator?.name}</span>
                        </div>
@@ -148,7 +205,7 @@ const Dashboard = () => {
                               ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed' 
                               : 'bg-cricket text-white hover:bg-cricket-dark'
                           }`}
-                          onClick={() => handleJoinMatch(match._id)}
+                          onClick={() => setJoiningMatch(match)}
                           disabled={(match.teamA.players.length + match.teamB.players.length) >= (match.teamSize * 2)}
                         >
                           {(match.teamA.players.length + match.teamB.players.length) >= (match.teamSize * 2) ? 'Full' : 'Join'}
@@ -201,6 +258,15 @@ const Dashboard = () => {
         isOpen={isModalOpen} 
         imageSrc={modalImage} 
         onClose={() => setIsModalOpen(false)} 
+      />
+
+      <MatchDetailModal
+        isOpen={isMatchModalOpen}
+        matchId={selectedMatchId}
+        onClose={() => {
+          setIsMatchModalOpen(false);
+          setSelectedMatchId(null);
+        }}
       />
     </div>
   );

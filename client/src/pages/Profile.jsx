@@ -88,6 +88,7 @@ const Profile = () => {
   };
 
   const handleUpdateLocation = () => {
+    debugger;
     if (!navigator.geolocation) {
       setStatus({ type: 'error', message: 'Geolocation is not supported by your browser' });
       return;
@@ -104,7 +105,7 @@ const Profile = () => {
         });
         setStatus({ type: 'success', message: 'Location detected! Click "Save Changes" to update.' });
       },
-      () => {
+      (error) => {
         setStatus({ type: 'error', message: 'Unable to retrieve your location' });
       }
     );
@@ -117,7 +118,7 @@ const Profile = () => {
     try {
       await updateProfile(formData);
       setStatus({ type: 'success', message: 'Profile updated successfully!' });
-    } catch (err) {
+    } catch {
       setStatus({ type: 'error', message: 'Failed to update profile' });
     } finally {
       setLoading(false);
@@ -183,6 +184,22 @@ const Profile = () => {
             {formData.location.coordinates[0] !== 0 
               ? `${formData.location.coordinates[0].toFixed(2)}, ${formData.location.coordinates[1].toFixed(2)}`
               : 'No location set'}
+          </div>
+        </div>
+
+        {/* Career Stats Dashboard */}
+        <div className="mb-8 grid grid-cols-3 gap-3">
+          <div className="bg-cricket/5 border border-cricket/10 rounded-xl p-3 text-center">
+            <p className="text-[10px] text-cricket/60 font-black uppercase tracking-widest mb-1">Matches</p>
+            <p className="text-xl font-black text-cricket">{user.careerStats?.matchesPlayed || 0}</p>
+          </div>
+          <div className="bg-cricket/5 border border-cricket/10 rounded-xl p-3 text-center">
+            <p className="text-[10px] text-cricket/60 font-black uppercase tracking-widest mb-1">Runs</p>
+            <p className="text-xl font-black text-cricket">{user.careerStats?.totalRuns || 0}</p>
+          </div>
+          <div className="bg-cricket/5 border border-cricket/10 rounded-xl p-3 text-center">
+            <p className="text-[10px] text-cricket/60 font-black uppercase tracking-widest mb-1">Wickets</p>
+            <p className="text-xl font-black text-cricket">{user.careerStats?.totalWickets || 0}</p>
           </div>
         </div>
 
