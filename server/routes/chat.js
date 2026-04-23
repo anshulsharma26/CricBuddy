@@ -23,18 +23,33 @@ router.post('/', async (req, res) => {
       return res.status(500).json({ error: 'Google API key is missing.' });
     }
 
+    const systemInstruction = `You are an AI cricket expert. Only answer questions related to cricket. If the user asks about anything else, respond exactly with: "I am AI cricket expert please ask criket related queries/question".`;
+
+    const contents = [
+      {
+        role: 'user',
+        parts: [{ text: systemInstruction }]
+      },
+      {
+        role: 'model',
+        parts: [{ text: "Understood. I will only answer cricket-related questions and provide no other information." }]
+      }
+    ];
+
+    // Add history if it exists
+    if (history && Array.isArray(history)) {
+      contents.push(...history);
+    }
+
+    // Add current message
+    contents.push({
+      role: 'user',
+      parts: [{ text: message }]
+    });
+
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            {
-              text: message
-            }
-          ]
-        }
-      ]
+      model: 'gemini-1.5-flash',
+      contents: contents
     });
     res.json({ data: { text: response.text} });
 

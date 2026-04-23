@@ -3,11 +3,28 @@ import { chatService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import './Chatbot.css';
 
+const Typewriter = ({ text, delay = 10 }) => {
+  const [currentText, setCurrentText] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (currentIndex < text.length) {
+      const timeout = setTimeout(() => {
+        setCurrentText(prevText => prevText + text[currentIndex]);
+        setCurrentIndex(prevIndex => prevIndex + 1);
+      }, delay);
+      return () => clearTimeout(timeout);
+    }
+  }, [currentIndex, delay, text]);
+
+  return <span>{currentText}</span>;
+};
+
 const Chatbot = () => {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'model', parts: [{ text: "Hi! I'm CricBuddy AI. Ask me anything about cricket!" }] }
+    { role: 'model', parts: [{ text: "Hi! I'm CricBuddy AI. Ask me anything about cricket!" }], isNew: false }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -24,11 +41,11 @@ const Chatbot = () => {
   // If user is not logged in, don't show the chatbot
   if (!user) return null;
 
-  const cleanText = (text) => {
+  const formatText = (text) => {
     return text
-      .replace(/#{1,6}\s?/g, '') // Remove markdown headers (e.g., #, ##)
-      .replace(/\*\*/g, '')      // Remove bold markers (**)
-      .replace(/\*/g, '• ')      // Replace bullet markers (*) with a bullet point
+      .replace(/^\s*[\*\-]\s+/gm, '• ') // Replace bullet markers (* or -) with •
+      .replace(/\*\*/g, '')              // Strip bold markers
+      .replace(/#{1,6}\s?/g, '')        // Strip header markers
       .trim();
   };
 
@@ -40,26 +57,37 @@ const Chatbot = () => {
     setInput('');
     
     // Add user message to UI
-    const newMessages = [...messages, { role: 'user', parts: [{ text: userMessage }] }];
-    setMessages(newMessages);
+    setMessages(prev => [
+      ...prev.map(m => ({ ...m, isNew: false })),
+      { role: 'user', parts: [{ text: userMessage }], isNew: false }
+    ]);
     setIsLoading(true);
 
     try {
       // Filter out the initial greeting because Gemini requires the first message in history to be from 'user'
-      const historyToSend = messages.filter((msg, index) => index !== 0 || msg.role === 'user');
+      // Also strip extra properties like 'isNew' before sending
+      const historyToSend = messages
+        .filter((msg, index) => index !== 0 || msg.role === 'user')
+        .map(({ role, parts }) => ({ role, parts }));
+      
       const response = await chatService.sendMessage(userMessage, historyToSend);
       
       const responseText = response.data?.data?.text || response.data?.text || "";
       
-      setMessages(prev => [...prev, { 
-        role: 'model', 
-        parts: [{ text: cleanText(responseText) }] 
-      }]);
+      setMessages(prev => [
+        ...prev.map(m => ({ ...m, isNew: false })),
+        { 
+          role: 'model', 
+          parts: [{ text: formatText(responseText) }],
+          isNew: true 
+        }
+      ]);
     } catch (error) {
       console.error('Chat error:', error);
       setMessages(prev => [...prev, { 
         role: 'model', 
-        parts: [{ text: "Sorry, I'm having trouble connecting right now. Please try again later." }] 
+        parts: [{ text: "Sorry, I'm having trouble connecting right now. Please try again later." }],
+        isNew: true
       }]);
     } finally {
       setIsLoading(false);
@@ -78,7 +106,11 @@ const Chatbot = () => {
           <div className="chatbot-messages">
             {messages.map((msg, index) => (
               <div key={index} className={`message ${msg.role === 'user' ? 'user' : 'ai'}`}>
-                {msg.parts[0].text}
+                {msg.role === 'model' && msg.isNew ? (
+                  <Typewriter text={msg.parts[0].text} />
+                ) : (
+                  msg.parts[0].text
+                )}
               </div>
             ))}
             {isLoading && <div className="typing-indicator">CricBuddy is thinking...</div>}
