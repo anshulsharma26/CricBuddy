@@ -40,6 +40,10 @@ const pendingUserSchema = new mongoose.Schema({
       default: [0, 0] // [longitude, latitude]
     }
   },
+  locationName: {
+    type: String,
+    default: ''
+  },
   otp: {
     type: String,
     required: true

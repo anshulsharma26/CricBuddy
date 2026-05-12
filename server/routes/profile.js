@@ -34,7 +34,7 @@ router.get('/me', auth, async (req, res) => {
 // Update profile
 router.put('/me', auth, async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ['name', 'role', 'skillLevel', 'location', 'profilePic'];
+  const allowedUpdates = ['name', 'role', 'skillLevel', 'location', 'locationName', 'profilePic'];
   const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
 
   if (!isValidOperation) {

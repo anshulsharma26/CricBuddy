@@ -46,6 +46,10 @@ const userSchema = new mongoose.Schema({
       default: [0, 0] // [longitude, latitude]
     }
   },
+  locationName: {
+    type: String,
+    default: ''
+  },
   matchesJoined: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Match'

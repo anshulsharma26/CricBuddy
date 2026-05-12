@@ -54,18 +54,6 @@ app.get('/api/health', (req, res) => {
   res.send({ status: 'OK', message: 'CricBuddy API is running' });
 });
 
-// Diagnostic endpoint (temporary - remove after debugging)
-app.get('/api/debug/env', (req, res) => {
-  res.send({
-    EMAIL_USER: process.env.EMAIL_USER ? `✅ set (${process.env.EMAIL_USER.substring(0, 4)}...)` : '❌ NOT SET',
-    EMAIL_PASS: process.env.EMAIL_PASS ? '✅ set' : '❌ NOT SET',
-    MONGODB_URI: process.env.MONGODB_URI ? '✅ set' : '❌ NOT SET',
-    JWT_SECRET: process.env.JWT_SECRET ? '✅ set' : '❌ NOT SET',
-    NODE_ENV: process.env.NODE_ENV || 'not set',
-    RESEND_API_KEY: process.env.RESEND_API_KEY ? '✅ set (will be ignored)' : '❌ not set',
-  });
-});
-
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('Global error:', err.stack);

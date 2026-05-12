@@ -174,7 +174,7 @@ const CreateMatch = () => {
                  <span className="text-base">📍</span>
                  <div className="text-[10px] text-gray-500">
                    <p className="font-bold text-gray-700">Location</p>
-                   <p>Pinned at your current coordinates.</p>
+                   <p>{user.locationName || 'Pinned at your current coordinates.'}</p>
                  </div>
               </div>
             </div>

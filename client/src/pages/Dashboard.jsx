@@ -245,6 +245,11 @@ const Dashboard = () => {
                     <div className="min-w-0">
                       <h4 className="font-bold text-dark dark:text-gray-200 text-xs truncate">{player.name}</h4>
                       <p className="text-[10px] text-gray-400 dark:text-gray-500 truncate">{player.role} • {player.skillLevel}</p>
+                      {player.locationName && (
+                        <p className="text-[10px] text-gray-400 dark:text-gray-500 truncate flex items-center gap-0.5">
+                          <span>📍</span>{player.locationName}
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))

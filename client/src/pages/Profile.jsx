@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { profileService } from '../services/api';
+import { reverseGeocode } from '../utils/geocode';
 import Loader from '../components/Loader';
 import ImageModal from '../components/ImageModal';
 
@@ -12,6 +13,7 @@ const Profile = () => {
     role: '',
     skillLevel: '',
     location: { type: 'Point', coordinates: [0, 0] },
+    locationName: '',
     profilePic: ''
   });
   const [status, setStatus] = useState({ type: '', message: '' });
@@ -33,6 +35,7 @@ const Profile = () => {
         role: user.role || 'all-rounder',
         skillLevel: user.skillLevel || 'beginner',
         location: user.location || { type: 'Point', coordinates: [0, 0] },
+        locationName: user.locationName || '',
         profilePic: user.profilePic || ''
       });
     }
@@ -88,22 +91,29 @@ const Profile = () => {
   };
 
   const handleUpdateLocation = () => {
-    debugger;
     if (!navigator.geolocation) {
       setStatus({ type: 'error', message: 'Geolocation is not supported by your browser' });
       return;
     }
 
+    setStatus({ type: 'info', message: 'Detecting your location...' });
+
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setFormData({
-          ...formData,
+      async (position) => {
+        const { longitude, latitude } = position.coords;
+        
+        // Get readable location name
+        const locationName = await reverseGeocode(latitude, longitude);
+
+        setFormData(prev => ({
+          ...prev,
           location: {
             type: 'Point',
-            coordinates: [position.coords.longitude, position.coords.latitude]
-          }
-        });
-        setStatus({ type: 'success', message: 'Location detected! Click "Save Changes" to update.' });
+            coordinates: [longitude, latitude]
+          },
+          locationName: locationName
+        }));
+        setStatus({ type: 'success', message: `Location detected: ${locationName || 'Coordinates saved'}. Click "Save Changes" to update.` });
       },
       (error) => {
         setStatus({ type: 'error', message: 'Unable to retrieve your location' });
@@ -181,9 +191,11 @@ const Profile = () => {
 
           <div className="mt-1 inline-flex items-center gap-1.5 bg-gray-50 px-2 py-0.5 rounded text-[10px] font-bold text-gray-500">
             <span>📍</span> 
-            {formData.location.coordinates[0] !== 0 
-              ? `${formData.location.coordinates[0].toFixed(2)}, ${formData.location.coordinates[1].toFixed(2)}`
-              : 'No location set'}
+            {formData.locationName 
+              ? formData.locationName
+              : formData.location.coordinates[0] !== 0 
+                ? `${formData.location.coordinates[1].toFixed(4)}°N, ${formData.location.coordinates[0].toFixed(4)}°E`
+                : 'No location set'}
           </div>
         </div>
 
