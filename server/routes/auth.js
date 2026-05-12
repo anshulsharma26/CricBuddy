@@ -77,10 +77,30 @@ router.post('/signup', async (req, res) => {
 router.post('/verify-otp', async (req, res) => {
   try {
     const { email, otp } = req.body;
+
+    // Validate input
+    if (!email || !otp) {
+      return res.status(400).send({ error: 'Email and OTP are required' });
+    }
+
+    console.log('Verify OTP attempt for:', email);
     
-    const pendingUser = await PendingUser.findOne({ email, otp });
+    const pendingUser = await PendingUser.findOne({ email: email.toLowerCase().trim(), otp: otp.trim() });
     if (!pendingUser) {
-      return res.status(400).send({ error: 'Invalid or expired OTP' });
+      // Check if there's a pending user at all (OTP might be wrong vs expired)
+      const pendingExists = await PendingUser.findOne({ email: email.toLowerCase().trim() });
+      if (pendingExists) {
+        return res.status(400).send({ error: 'Invalid OTP. Please check and try again.' });
+      }
+      return res.status(400).send({ error: 'OTP has expired. Please request a new one.' });
+    }
+
+    // Check if user already exists (might have been created in a parallel request)
+    const existingUser = await User.findOne({ email: pendingUser.email });
+    if (existingUser) {
+      await PendingUser.deleteOne({ _id: pendingUser._id });
+      const token = jwt.sign({ _id: existingUser._id.toString() }, process.env.JWT_SECRET);
+      return res.status(200).send({ user: existingUser, token, message: 'Account already exists. Logged in!' });
     }
 
     // Create the actual user
@@ -94,18 +114,35 @@ router.post('/verify-otp', async (req, res) => {
     });
 
     await user.save();
+    console.log('User created successfully:', user.email);
 
     // Remove from pending collection
     await PendingUser.deleteOne({ _id: pendingUser._id });
 
-    // Send welcome email
-    sendWelcomeEmail(user.email, user.name); // Async but don't wait for it
+    // Send welcome email (fire and forget)
+    sendWelcomeEmail(user.email, user.name).catch(err => 
+      console.error('Welcome email failed (non-blocking):', err.message)
+    );
 
     const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);
     res.status(201).send({ user, token, message: 'Account created successfully!' });
   } catch (e) {
-    console.error('OTP Verification error:', e);
-    res.status(400).send({ error: e.message || 'Error during OTP verification' });
+    console.error('OTP Verification error:', e.message, e.stack);
+    
+    // Duplicate key error (email already exists)
+    if (e.code === 11000) {
+      return res.status(409).send({ error: 'An account with this email already exists.' });
+    }
+    // Mongoose validation error
+    if (e.name === 'ValidationError') {
+      return res.status(422).send({ error: e.message });
+    }
+    // JWT signing error (likely missing JWT_SECRET env var)
+    if (e.message && e.message.includes('secretOrPrivateKey')) {
+      console.error('JWT_SECRET is not configured!');
+      return res.status(500).send({ error: 'Server configuration error. Please contact support.' });
+    }
+    res.status(500).send({ error: e.message || 'Error during OTP verification' });
   }
 });
 
