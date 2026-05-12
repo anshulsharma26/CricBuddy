@@ -1,24 +1,20 @@
 const nodemailer = require('nodemailer');
-const { Resend } = require('resend');
 
-// Use Resend for production (Vercel), nodemailer for local dev
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
-
-const transporter = nodemailer.createTransport({
-  service: process.env.EMAIL_SERVICE || 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
-
-// Sender address: use verified Resend domain in production, Gmail locally
-const getFromAddress = () => {
-  if (resend) {
-    // Resend requires a verified domain, or use 'onboarding@resend.dev' for testing
-    return process.env.RESEND_FROM_EMAIL || 'CricBuddy <onboarding@resend.dev>';
-  }
-  return `"CricBuddy" <${process.env.EMAIL_USER}>`;
+// Gmail SMTP with explicit host/port (more reliable on Vercel than 'service' shorthand)
+const createTransporter = () => {
+  return nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // SSL
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    },
+    // Timeout settings for serverless environments
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000
+  });
 };
 
 const sendOTPEmail = async (email, otp) => {
@@ -36,27 +32,18 @@ const sendOTPEmail = async (email, otp) => {
   `;
 
   try {
-    if (resend) {
-      // Production: Use Resend API (works on Vercel serverless)
-      await resend.emails.send({
-        from: getFromAddress(),
-        to: [email],
-        subject: 'Your OTP for CricBuddy Signup',
-        html: htmlContent
-      });
-      console.log('OTP email sent via Resend to:', email);
-    } else {
-      // Local dev: Use nodemailer/Gmail SMTP
-      await transporter.sendMail({
-        from: getFromAddress(),
-        to: email,
-        subject: 'Your OTP for CricBuddy Signup',
-        html: htmlContent
-      });
-      console.log('OTP email sent via Nodemailer to:', email);
-    }
+    const transporter = createTransporter();
+    const info = await transporter.sendMail({
+      from: `"CricBuddy" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Your OTP for CricBuddy Signup',
+      html: htmlContent
+    });
+    console.log('OTP email sent successfully to:', email, '| MessageId:', info.messageId);
   } catch (error) {
-    console.error('Error sending OTP email:', error);
+    console.error('Error sending OTP email:', error.message);
+    console.error('EMAIL_USER configured:', !!process.env.EMAIL_USER);
+    console.error('EMAIL_PASS configured:', !!process.env.EMAIL_PASS);
     throw new Error('Failed to send OTP email');
   }
 };
@@ -76,25 +63,16 @@ const sendWelcomeEmail = async (email, name) => {
   `;
 
   try {
-    if (resend) {
-      await resend.emails.send({
-        from: getFromAddress(),
-        to: [email],
-        subject: 'Welcome to the Squad! 🏏',
-        html: htmlContent
-      });
-      console.log('Welcome email sent via Resend to:', email);
-    } else {
-      await transporter.sendMail({
-        from: getFromAddress(),
-        to: email,
-        subject: 'Welcome to the Squad! 🏏',
-        html: htmlContent
-      });
-      console.log('Welcome email sent via Nodemailer to:', email);
-    }
+    const transporter = createTransporter();
+    const info = await transporter.sendMail({
+      from: `"CricBuddy" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Welcome to the Squad! 🏏',
+      html: htmlContent
+    });
+    console.log('Welcome email sent successfully to:', email, '| MessageId:', info.messageId);
   } catch (error) {
-    console.error('Error sending welcome email:', error);
+    console.error('Error sending welcome email:', error.message);
     // Don't throw error for welcome email as the user is already created
   }
 };
