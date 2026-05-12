@@ -3,10 +3,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
+const homeRoutes = require('./routes/home');
 const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
 const matchRoutes = require('./routes/matches');
 const chatRoutes = require('./routes/chat');
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -41,6 +43,7 @@ app.use(async (req, res, next) => {
 });
 
 // Routes
+app.use('/', homeRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/matches', matchRoutes);
