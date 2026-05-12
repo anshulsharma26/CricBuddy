@@ -15,6 +15,15 @@ const generateOTP = () => {
 router.post('/signup', async (req, res) => {
   try {
     const { email, password, name, role, skillLevel, location } = req.body;
+
+    // Validate required fields
+    if (!email || !password || !name) {
+      return res.status(400).send({ error: 'Email, password, and name are required' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).send({ error: 'Password must be at least 6 characters' });
+    }
     
     // Check if user already exists in permanent collection
     const existingUser = await User.findOne({ email });
@@ -52,8 +61,15 @@ router.post('/signup', async (req, res) => {
 
     res.status(200).send({ message: 'OTP sent to your email. Please verify to complete signup.' });
   } catch (e) {
-    console.error('Signup Initiation error:', e);
-    res.status(400).send({ error: e.message || 'Error during signup initiation' });
+    console.error('Signup Initiation error:', e.message, e.stack);
+    
+    if (e.message === 'Failed to send OTP email') {
+      return res.status(503).send({ error: 'Failed to send OTP email. Please try again later.' });
+    }
+    if (e.name === 'ValidationError') {
+      return res.status(422).send({ error: e.message });
+    }
+    res.status(500).send({ error: e.message || 'Error during signup initiation' });
   }
 });
 
