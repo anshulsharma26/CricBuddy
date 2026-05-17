@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { chatService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import './Chatbot.css';
+import aiCoachIcon from '../assets/ai_coach.png';
 
 // ── Text-to-Speech Hook ──────────────────────────────────────────────
 const useSpeech = () => {
@@ -33,13 +34,13 @@ const useSpeech = () => {
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
     utterance.volume = 1.0;
-    
+
     // Try to find a good English voice
     const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(v => 
+    const preferredVoice = voices.find(v =>
       v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Microsoft'))
     ) || voices.find(v => v.lang.startsWith('en')) || voices[0];
-    
+
     if (preferredVoice) {
       utterance.voice = preferredVoice;
     }
@@ -125,9 +126,9 @@ const Chatbot = () => {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { 
-      role: 'model', 
-      parts: [{ text: "Hey there! 🏏 I'm CricBuddy AI — your cricket expert. Ask me anything about cricket rules, player stats, match history, or techniques!" }], 
+    {
+      role: 'model',
+      parts: [{ text: "Hey there! 🏏 I'm CricBuddy AI — your cricket expert. Ask me anything about cricket rules, player stats, match history, or techniques!" }],
       isNew: false,
       timestamp: new Date()
     }
@@ -177,7 +178,7 @@ const Chatbot = () => {
     const userMessage = input.trim();
     setInput('');
     setError(null);
-    
+
     // Add user message to UI
     setMessages(prev => [
       ...prev.map(m => ({ ...m, isNew: false })),
@@ -190,15 +191,15 @@ const Chatbot = () => {
       const historyToSend = messages
         .filter((msg, index) => index !== 0 || msg.role === 'user')
         .map(({ role, parts }) => ({ role, parts }));
-      
+
       const response = await chatService.sendMessage(userMessage, historyToSend);
-      
+
       const responseText = response.data?.data?.text || response.data?.text || "";
-      
+
       setMessages(prev => [
         ...prev.map(m => ({ ...m, isNew: false })),
-        { 
-          role: 'model', 
+        {
+          role: 'model',
           parts: [{ text: formatText(responseText) }],
           isNew: true,
           timestamp: new Date()
@@ -206,10 +207,10 @@ const Chatbot = () => {
       ]);
     } catch (error) {
       console.error('Chat error:', error);
-      
+
       const errorData = error.response?.data;
       let errorMessage = "Sorry, I'm having trouble connecting right now. Please try again.";
-      
+
       if (error.response?.status === 429 || errorData?.retryable) {
         errorMessage = "🔄 I'm a bit busy right now. Please wait a few seconds and try again!";
       } else if (error.response?.status === 401) {
@@ -217,10 +218,10 @@ const Chatbot = () => {
       } else if (!navigator.onLine) {
         errorMessage = "📡 You appear to be offline. Please check your internet connection.";
       }
-      
+
       setError(errorMessage);
-      setMessages(prev => [...prev, { 
-        role: 'model', 
+      setMessages(prev => [...prev, {
+        role: 'model',
         parts: [{ text: errorMessage }],
         isNew: true,
         isError: true,
@@ -234,9 +235,9 @@ const Chatbot = () => {
   const handleClearChat = () => {
     stop();
     setMessages([
-      { 
-        role: 'model', 
-        parts: [{ text: "Chat cleared! 🏏 Ask me anything about cricket!" }], 
+      {
+        role: 'model',
+        parts: [{ text: "Chat cleared! 🏏 Ask me anything about cricket!" }],
         isNew: false,
         timestamp: new Date()
       }
@@ -273,9 +274,9 @@ const Chatbot = () => {
               </div>
             </div>
             <div className="chatbot-header-actions">
-              <button 
-                className="header-action-btn" 
-                onClick={handleClearChat} 
+              <button
+                className="header-action-btn"
+                onClick={handleClearChat}
                 title="Clear chat"
                 aria-label="Clear chat"
               >
@@ -284,8 +285,8 @@ const Chatbot = () => {
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                 </svg>
               </button>
-              <button 
-                className="header-action-btn close-btn" 
+              <button
+                className="header-action-btn close-btn"
                 onClick={() => setIsOpen(false)}
                 aria-label="Close chat"
               >
@@ -296,12 +297,12 @@ const Chatbot = () => {
               </button>
             </div>
           </div>
-          
+
           {/* Messages */}
           <div className="chatbot-messages">
             {messages.map((msg, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className={`message-wrapper ${msg.role === 'user' ? 'user' : 'ai'}`}
               >
                 {msg.role === 'model' && (
@@ -317,7 +318,7 @@ const Chatbot = () => {
                   </div>
                   {/* TTS button for AI messages only */}
                   {msg.role === 'model' && !msg.isError && (
-                    <SpeakerButton 
+                    <SpeakerButton
                       isActive={isSpeaking && speakingMsgIndex === index}
                       onClick={() => speak(msg.parts[0].text, index)}
                     />
@@ -325,7 +326,7 @@ const Chatbot = () => {
                 </div>
               </div>
             ))}
-            
+
             {isLoading && (
               <div className="message-wrapper ai">
                 <div className="ai-avatar-small">🤖</div>
@@ -364,14 +365,14 @@ const Chatbot = () => {
               disabled={isLoading}
               id="chatbot-input"
             />
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={isLoading || !input.trim()}
               className="send-btn"
               aria-label="Send message"
             >
               <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
               </svg>
             </button>
           </form>
@@ -379,10 +380,7 @@ const Chatbot = () => {
       ) : (
         <button className="chatbot-toggle" onClick={() => setIsOpen(true)} aria-label="Open CricBuddy AI Chat">
           <div className="toggle-pulse"></div>
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/>
-            <circle cx="8" cy="9" r="1.5"/><circle cx="12" cy="9" r="1.5"/><circle cx="16" cy="9" r="1.5"/>
-          </svg>
+          <img src={aiCoachIcon} alt="AI Coach" />
         </button>
       )}
     </div>

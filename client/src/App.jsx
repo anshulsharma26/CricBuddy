@@ -14,10 +14,10 @@ import CreateMatch from './pages/CreateMatch';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  
+
   if (loading) return <Loader text="Getting your stats..." />;
   if (!user) return <Navigate to="/login" />;
-  
+
   return children;
 };
 
@@ -40,31 +40,31 @@ const Navbar = ({ isDarkMode, toggleTheme }) => {
               </span>
             </Link>
           </div>
-          
+
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
             {user ? (
               <>
-                <Link 
-                  to="/" 
+                <Link
+                  to="/"
                   className={`text-sm font-medium transition-colors ${isActive('/') ? 'text-cricket' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                 >
                   Dashboard
                 </Link>
-                <Link 
-                  to="/create-match" 
+                <Link
+                  to="/create-match"
                   className={`text-sm font-medium transition-colors ${isActive('/create-match') ? 'text-cricket' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                 >
                   Organize
                 </Link>
-                <Link 
-                  to="/profile" 
+                <Link
+                  to="/profile"
                   className={`text-sm font-medium transition-colors ${isActive('/profile') ? 'text-cricket' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                 >
                   Profile
                 </Link>
-                <button 
-                  onClick={logout} 
+                <button
+                  onClick={logout}
                   className="btn-secondary"
                 >
                   Logout
@@ -76,7 +76,7 @@ const Navbar = ({ isDarkMode, toggleTheme }) => {
                 <Link to="/signup" className="btn-primary">Sign Up</Link>
               </>
             )}
-            
+
             {/* Theme Toggle Button (Desktop) */}
             <button
               onClick={toggleTheme}
@@ -103,7 +103,7 @@ const Navbar = ({ isDarkMode, toggleTheme }) => {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
               )}
             </button>
-            
+
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
@@ -125,29 +125,29 @@ const Navbar = ({ isDarkMode, toggleTheme }) => {
         <div className="md:hidden bg-white dark:bg-dark-light border-b border-gray-100 dark:border-gray-800 py-4 px-4 space-y-3 shadow-lg">
           {user ? (
             <>
-              <Link 
-                to="/" 
+              <Link
+                to="/"
                 className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/') ? 'text-cricket bg-cricket-light/20' : 'text-gray-600 dark:text-gray-300'}`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Dashboard
               </Link>
-              <Link 
-                to="/create-match" 
+              <Link
+                to="/create-match"
                 className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/create-match') ? 'text-cricket bg-cricket-light/20' : 'text-gray-600 dark:text-gray-300'}`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Organize
               </Link>
-              <Link 
-                to="/profile" 
+              <Link
+                to="/profile"
                 className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/profile') ? 'text-cricket bg-cricket-light/20' : 'text-gray-600 dark:text-gray-300'}`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Profile
               </Link>
-              <button 
-                onClick={() => { logout(); setIsMenuOpen(false); }} 
+              <button
+                onClick={() => { logout(); setIsMenuOpen(false); }}
                 className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10"
               >
                 Logout
@@ -155,15 +155,15 @@ const Navbar = ({ isDarkMode, toggleTheme }) => {
             </>
           ) : (
             <>
-              <Link 
-                to="/login" 
+              <Link
+                to="/login"
                 className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Login
               </Link>
-              <Link 
-                to="/signup" 
+              <Link
+                to="/signup"
                 className="block px-3 py-2 rounded-md text-base font-medium bg-cricket text-white"
                 onClick={() => setIsMenuOpen(false)}
               >
