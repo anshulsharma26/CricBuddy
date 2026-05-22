@@ -2,7 +2,7 @@ import React from 'react';
 
 const videos = [
   {
-    id: 'uH3YvVd9mBw', // Example batting drill
+    id: '5INjpGd5LMw', // Example batting drill
     title: 'Master the Cover Drive | Batting Masterclass',
     expert: 'Sachin Tendulkar',
     category: 'Batting',
