@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Profile from './pages/Profile';
 import CreateMatch from './pages/CreateMatch';
+import Learn from './pages/Learn';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -62,6 +63,12 @@ const Navbar = ({ isDarkMode, toggleTheme }) => {
                   className={`text-sm font-medium transition-colors ${isActive('/profile') ? 'text-cricket' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                 >
                   Profile
+                </Link>
+                <Link
+                  to="/learn"
+                  className={`text-sm font-medium transition-colors ${isActive('/learn') ? 'text-cricket' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                >
+                  Learn
                 </Link>
                 <button
                   onClick={logout}
@@ -145,6 +152,13 @@ const Navbar = ({ isDarkMode, toggleTheme }) => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Profile
+              </Link>
+              <Link
+                to="/learn"
+                className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/learn') ? 'text-cricket bg-cricket-light/20' : 'text-gray-600 dark:text-gray-300'}`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Learn
               </Link>
               <button
                 onClick={() => { logout(); setIsMenuOpen(false); }}
@@ -240,6 +254,11 @@ function App() {
               <Route path="/create-match" element={
                 <PrivateRoute>
                   <CreateMatch />
+                </PrivateRoute>
+              } />
+              <Route path="/learn" element={
+                <PrivateRoute>
+                  <Learn />
                 </PrivateRoute>
               } />
             </Routes>

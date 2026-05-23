@@ -8,6 +8,7 @@ const Signup = () => {
     email: '',
     password: '',
     role: 'all-rounder',
+    userType: 'student',
     skillLevel: 'beginner'
   });
   const [otp, setOtp] = useState('');
@@ -127,7 +128,7 @@ const Signup = () => {
               />
             </div>
             
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <div>
                 <label className="label-base">Role</label>
                 <select 
@@ -139,6 +140,18 @@ const Signup = () => {
                   <option value="batsman">Batsman</option>
                   <option value="bowler">Bowler</option>
                   <option value="all-rounder">All-rounder</option>
+                </select>
+              </div>
+              <div>
+                <label className="label-base">User Type</label>
+                <select
+                  name="userType"
+                  className="input-field"
+                  value={formData.userType}
+                  onChange={handleChange}
+                >
+                  <option value="student">Student</option>
+                  <option value="coach">Coach</option>
                 </select>
               </div>
               <div>

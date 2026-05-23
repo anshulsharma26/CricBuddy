@@ -14,7 +14,7 @@ const generateOTP = () => {
 // Signup - Initiation (Send OTP)
 router.post('/signup', async (req, res) => {
   try {
-    const { email, password, name, role, skillLevel, location, locationName } = req.body;
+    const { email, password, name, role, skillLevel, location, locationName, userType } = req.body;
 
     // Validate required fields
     if (!email || !password || !name) {
@@ -40,6 +40,7 @@ router.post('/signup', async (req, res) => {
       pendingUser.password = password; // Update if password changed
       pendingUser.name = name;
       pendingUser.role = role;
+      pendingUser.userType = userType || 'student';
       pendingUser.skillLevel = skillLevel;
       pendingUser.location = location || { type: 'Point', coordinates: [0, 0] };
       pendingUser.locationName = locationName || '';
@@ -50,6 +51,7 @@ router.post('/signup', async (req, res) => {
         password,
         name,
         role,
+        userType: userType || 'student',
         skillLevel,
         location: location || { type: 'Point', coordinates: [0, 0] },
         locationName: locationName || '',
@@ -111,6 +113,7 @@ router.post('/verify-otp', async (req, res) => {
       password: pendingUser.password,
       name: pendingUser.name,
       role: pendingUser.role,
+      userType: pendingUser.userType || 'student',
       skillLevel: pendingUser.skillLevel,
       location: pendingUser.location,
       locationName: pendingUser.locationName || ''
