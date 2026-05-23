@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
     enum: ['batsman', 'bowler', 'all-rounder'],
     default: 'all-rounder'
   },
+  userType: {
+    type: String,
+    enum: ['coach', 'student'],
+    default: 'student'
+  },
   skillLevel: {
     type: String,
     enum: ['beginner', 'intermediate', 'advanced'],
